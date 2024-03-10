@@ -4,7 +4,6 @@ import { body } from "express-validator";
 import { ValidatorMiddleware } from "../middlewares/validator.middleware.js";
 import { getSslDetails } from "../securities/ssl.js";
 import { getHeaderSecurityInfos } from "../securities/header.js";
-import { getPageSpeedTest } from "../securities/speed.js";
 
 const checkRouteValidators = [
   body("url").isString().isURL(),
@@ -19,16 +18,14 @@ router.post("/check", checkRouteValidators, async (request, response) => {
 
     const hasSsl = await getSslDetails(url);
     const headerSecurityInfos = await getHeaderSecurityInfos(url);
-    const speedTest = await getPageSpeedTest(url);
 
     return response.json({
       ssl: hasSsl,
       headers: headerSecurityInfos,
-      speed: speedTest,
     });
   } catch (e) {
     console.error(e);
-    response.status(400).send();
+    return response.status(400).send(e.message);
   }
 });
 

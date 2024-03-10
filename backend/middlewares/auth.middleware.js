@@ -29,6 +29,7 @@ export const AuthMiddleware = async (request, response, next) => {
         .send("Пользовател с такими данными не найден!");
     }
   } catch (e) {
-    console.log(e.message);
+    console.error(e);
+    response.status(400).send(e.message);
   }
 };

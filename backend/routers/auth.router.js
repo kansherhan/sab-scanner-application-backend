@@ -5,6 +5,7 @@ import sha256 from "sha256";
 import { User } from "../databases/models/User.js";
 import { ValidatorMiddleware } from "../middlewares/validator.middleware.js";
 import { randomString } from "../utils/random.js";
+import { AuthMiddleware } from "../middlewares/auth.middleware.js";
 
 const loginRouteValidators = [
   body("email").isString().isLength({ min: 2, max: 50 }),
@@ -42,6 +43,7 @@ router.post("/login", loginRouteValidators, async (request, response) => {
     return response.json(user);
   } catch (e) {
     console.error(e);
+    response.status(500).send(e.message);
   }
 });
 
@@ -59,7 +61,12 @@ router.post("/register", registerRouteValidators, async (request, response) => {
     return response.json(user);
   } catch (e) {
     console.error(e);
+    response.status(400).send(e.message);
   }
+});
+
+router.get("/check", AuthMiddleware, async (request, response) => {
+  response.json(request.user);
 });
 
 export default router;
