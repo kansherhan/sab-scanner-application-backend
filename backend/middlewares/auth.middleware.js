@@ -1,10 +1,5 @@
 import { User } from "../databases/models/User.js";
 
-/**
- * @param request {express/Request}
- * @param response {express/Response}
- * @param next {express/NextFunction}
- */
 export const AuthMiddleware = async (request, response, next) => {
   try {
     const userToken = request.header("Authorization");

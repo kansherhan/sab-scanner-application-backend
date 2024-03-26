@@ -1,10 +1,5 @@
 import { matchedData, validationResult } from "express-validator";
 
-/**
- * @param request {express/Request}
- * @param response {express/Response}
- * @param next {express/NextFunction}
- */
 export const ValidatorMiddleware = async (request, response, next) => {
   const errors = validationResult(request);
 

@@ -1,9 +1,5 @@
 import axios from "axios";
 
-/**
- * @param url {string}
- * @return {JSDOM}
- */
 export const getSslDetails = async (url) => {
   const { hostname } = new URL(url);
 
