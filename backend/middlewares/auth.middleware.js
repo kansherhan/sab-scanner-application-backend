@@ -2,27 +2,35 @@ import { User } from "../databases/models/User.js";
 
 export const AuthMiddleware = async (request, response, next) => {
   try {
-    const userToken = request.header("Authorization");
+    const userToken = request.headers.authorization;
 
-    if (userToken) {
-      return response.status(400).send("Нету токен авторизаций!");
+    if (!userToken) {
+      return response.status(400).send("Token authorization not found!");
     }
+
+    const token = userToken.split(" ")[1];
 
     const user = await User.findOne({
       where: {
-        token: userToken,
+        token,
       },
     });
 
-    if (user) {
-      request.user = user;
-
-      return next();
-    } else {
-      return response
-        .status(400)
-        .send("Пользовател с такими данными не найден!");
+    if (!user) {
+      return response.status(404).send("User not found!");
     }
+
+    if (!user.hasAccess) {
+      return response.status(403).send("User does not have access!");
+    }
+
+    if (user.isBanned) {
+      return response.status(403).send("User is banned!");
+    }
+
+    request.user = user;
+
+    return next();
   } catch (e) {
     console.error(e);
     response.status(400).send(e.message);

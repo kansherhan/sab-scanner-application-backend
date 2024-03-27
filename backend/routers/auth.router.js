@@ -51,6 +51,16 @@ router.post("/register", registerRouteValidators, async (request, response) => {
   try {
     const { email, password, firstName } = request.validData;
 
+    const existsUser = await User.findOne({
+      where: {
+        email,
+      },
+    });
+
+    if (existsUser) {
+      return response.status(400).send("There is already such an email!");
+    }
+
     const user = await User.create({
       email,
       firstName,
