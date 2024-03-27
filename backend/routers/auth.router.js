@@ -5,7 +5,6 @@ import sha256 from "sha256";
 import { User } from "../databases/models/User.js";
 import { ValidatorMiddleware } from "../middlewares/validator.middleware.js";
 import { randomString } from "../utils/random.js";
-import { AuthMiddleware } from "../middlewares/auth.middleware.js";
 
 const loginRouteValidators = [
   body("email").isString().isLength({ min: 2, max: 50 }),
@@ -16,7 +15,6 @@ const loginRouteValidators = [
 const registerRouteValidators = [
   body("email").isString().isLength({ min: 2, max: 50 }),
   body("password").isString().isLength({ min: 6, max: 255 }),
-  body("firstName").isString().isLength({ min: 2, max: 30 }),
   ValidatorMiddleware,
 ];
 
@@ -33,11 +31,11 @@ router.post("/login", loginRouteValidators, async (request, response) => {
     });
 
     if (!user) {
-      return response.status(400).send("Такого пользователя нету!");
+      return response.status(400).send("User not found!");
     }
 
     if (user.password !== sha256(password)) {
-      return response.status(400).send("Ошибка при почте или пароле!");
+      return response.status(400).send("Error with mail or password!");
     }
 
     return response.json(user);
@@ -49,7 +47,7 @@ router.post("/login", loginRouteValidators, async (request, response) => {
 
 router.post("/register", registerRouteValidators, async (request, response) => {
   try {
-    const { email, password, firstName } = request.validData;
+    const { email, password } = request.validData;
 
     const existsUser = await User.findOne({
       where: {
@@ -63,7 +61,6 @@ router.post("/register", registerRouteValidators, async (request, response) => {
 
     const user = await User.create({
       email,
-      firstName,
       password: sha256(password),
       token: randomString(32),
     });
@@ -73,10 +70,6 @@ router.post("/register", registerRouteValidators, async (request, response) => {
     console.error(e);
     response.status(400).send(e.message);
   }
-});
-
-router.get("/check", AuthMiddleware, async (request, response) => {
-  response.json(request.user);
 });
 
 export default router;

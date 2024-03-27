@@ -57,6 +57,10 @@ router.post(
         return response.status(400).send(`User with ID(${userID}) not found!`);
       }
 
+      if (user.isAdmin) {
+        return response.status(400).send("Admin rights cannot be changed!");
+      }
+
       user.hasAccess = value;
       await user.save();
 
@@ -85,6 +89,10 @@ router.post(
 
       if (!user) {
         return response.status(400).send(`User with ID(${userID}) not found!`);
+      }
+
+      if (user.isAdmin) {
+        return response.status(400).send("Admin rights cannot be changed!");
       }
 
       user.isBanned = value;

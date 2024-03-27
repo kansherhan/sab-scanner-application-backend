@@ -20,10 +20,6 @@ User.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    firstName: {
-      type: DataTypes.STRING(30),
-      allowNull: false,
-    },
     token: {
       type: DataTypes.STRING(32),
       allowNull: false,
