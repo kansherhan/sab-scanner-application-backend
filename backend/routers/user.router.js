@@ -39,40 +39,6 @@ router.get(
 );
 
 router.post(
-  "/edit-access",
-  AuthMiddleware,
-  FullAccessMiddleware,
-  userEditRouteValidators,
-  async (request, response) => {
-    try {
-      const { userID, value } = request.validData;
-
-      const user = await User.findOne({
-        where: {
-          id: userID,
-        },
-      });
-
-      if (!user) {
-        return response.status(400).send(`User with ID(${userID}) not found!`);
-      }
-
-      if (user.isAdmin) {
-        return response.status(400).send("Admin rights cannot be changed!");
-      }
-
-      user.hasAccess = value;
-      await user.save();
-
-      return response.status(200).send("OK");
-    } catch (e) {
-      console.error(e);
-      return response.status(500).send(e.message);
-    }
-  },
-);
-
-router.post(
   "/user-ban-edit",
   AuthMiddleware,
   FullAccessMiddleware,

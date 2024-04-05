@@ -24,11 +24,6 @@ User.init(
       type: DataTypes.STRING(32),
       allowNull: false,
     },
-    hasAccess: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: false,
-    },
     isBanned: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
