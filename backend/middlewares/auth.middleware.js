@@ -20,10 +20,6 @@ export const AuthMiddleware = async (request, response, next) => {
       return response.status(404).send("User not found!");
     }
 
-    if (!user.hasAccess) {
-      return response.status(403).send("User does not have access!");
-    }
-
     if (user.isBanned) {
       return response.status(403).send("User is banned!");
     }
