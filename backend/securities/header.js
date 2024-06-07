@@ -1,12 +1,60 @@
 import axios from "axios";
 import { JSDOM } from "jsdom";
+import { translate } from "@vitalets/google-translate-api";
 
+const SECTION_SETTINGS = [
+  {
+    header: "Security Report Summary",
+    translate: true,
+    labelTranslate: true,
+    descriptionTranslate: false,
+  },
+  {
+    header: "Missing Headers",
+    translate: true,
+    labelTranslate: false,
+    descriptionTranslate: true,
+  },
+  {
+    header: "Raw Headers",
+    translate: false,
+    labelTranslate: false,
+    descriptionTranslate: false,
+  },
+  {
+    header: "Upcoming Headers",
+    translate: true,
+    labelTranslate: false,
+    descriptionTranslate: true,
+  },
+  {
+    header: "Warnings",
+    translate: true,
+    labelTranslate: false,
+    descriptionTranslate: true,
+  },
+  {
+    header: "Additional Information",
+    translate: true,
+    labelTranslate: false,
+    descriptionTranslate: true,
+  },
+];
 const SECURITY_HEADER_SITE_URL = "https://securityheaders.com/";
 
-export const getHeaderSecurityInfos = async (url) => {
+const translateText = async (text, lang) => {
+  const response = await translate(text, {
+    from: "en",
+    to: lang,
+  });
+
+  return response.text;
+};
+
+export const getHeaderSecurityInfos = async (url, language) => {
   const dom = await loadHeaderSite(url);
 
-  return headerSiteParse(dom);
+  return await headerSiteParse(dom, language);
 };
 
 const loadHeaderSite = async (url) => {
@@ -21,7 +69,7 @@ const loadHeaderSite = async (url) => {
   return new JSDOM(response.data);
 };
 
-const headerSiteParse = (dom) => {
+const headerSiteParse = async (dom, language) => {
   const document = dom.window.document;
   const data = {
     score: "?",
@@ -37,6 +85,13 @@ const headerSiteParse = (dom) => {
 
   for (const section of reportSections) {
     const titleElement = section.querySelector(".reportTitle");
+
+    const titleText = titleElement.textContent.trim();
+
+    const sectionSettings = SECTION_SETTINGS.find(
+      (item) => item.header === titleText,
+    );
+
     const elements = [];
 
     for (const element of section.querySelectorAll(".reportTable .tableRow")) {
@@ -57,8 +112,30 @@ const headerSiteParse = (dom) => {
       elements.push(elementData);
     }
 
+    if (sectionSettings.translate && language !== "en") {
+      let allText = elements
+        .map((element) => `${element.label},${element.description}`)
+        .join(";");
+
+      const text = await translateText(allText, language);
+
+      const items = text.split(";");
+
+      for (let i = 0; i < items.length; i++) {
+        const parts = items[i].split(",");
+
+        if (sectionSettings.labelTranslate) {
+          elements[i].label = parts[0];
+        }
+
+        if (sectionSettings.descriptionTranslate) {
+          elements[i].description = parts[1];
+        }
+      }
+    }
+
     data.sections.push({
-      title: titleElement.textContent.trim(),
+      title: titleText,
       elements,
     });
   }

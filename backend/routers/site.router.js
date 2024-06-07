@@ -8,6 +8,7 @@ import { AuthMiddleware } from "../middlewares/auth.middleware.js";
 
 const checkRouteValidators = [
   body("url").isString().isURL(),
+  body("language").isString(),
   ValidatorMiddleware,
 ];
 
@@ -19,10 +20,10 @@ router.post(
   checkRouteValidators,
   async (request, response) => {
     try {
-      const { url } = request.validData;
+      const { url, language } = request.validData;
 
       const hasSsl = await getSslDetails(url);
-      const headerSecurityInfos = await getHeaderSecurityInfos(url);
+      const headerSecurityInfos = await getHeaderSecurityInfos(url, language);
 
       return response.json({
         ssl: hasSsl,
