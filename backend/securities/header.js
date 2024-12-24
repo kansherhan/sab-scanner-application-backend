@@ -1,6 +1,10 @@
-import axios from "axios";
 import { JSDOM } from "jsdom";
 import { translate } from "@vitalets/google-translate-api";
+
+import puppeteer from "puppeteer-extra";
+import StealthPlugin from "puppeteer-extra-plugin-stealth";
+
+puppeteer.use(StealthPlugin());
 
 const SECTION_SETTINGS = [
   {
@@ -58,15 +62,22 @@ export const getHeaderSecurityInfos = async (url, language) => {
 };
 
 const loadHeaderSite = async (url) => {
-  const response = await axios.get(SECURITY_HEADER_SITE_URL, {
-    params: {
-      q: url,
-      hide: "on",
-      followRedirects: "on",
-    },
+  const browser = await puppeteer.launch({
+    headless: true,
+    defaultViewport: null,
+    executablePath: "/usr/bin/google-chrome",
+    args: ["--no-sandbox"],
   });
+  const page = await browser.newPage();
+  await page.goto(`${SECURITY_HEADER_SITE_URL}?q=${url}&hide=on&followRedirects=on`, {
+    waitUntil: "domcontentloaded",
+  });
+  await page.evaluate(() => {
+    return document.body;
+  });
+  const htmlContent = await page.content();
 
-  return new JSDOM(response.data);
+  return new JSDOM(htmlContent);
 };
 
 const headerSiteParse = async (dom, language) => {
