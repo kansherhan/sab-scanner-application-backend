@@ -69,9 +69,12 @@ const loadHeaderSite = async (url) => {
     args: ["--no-sandbox"],
   });
   const page = await browser.newPage();
-  await page.goto(`${SECURITY_HEADER_SITE_URL}?q=${url}&hide=on&followRedirects=on`, {
-    waitUntil: "domcontentloaded",
-  });
+  await page.goto(
+    `${SECURITY_HEADER_SITE_URL}?q=${url}&hide=on&followRedirects=on`,
+    {
+      waitUntil: "domcontentloaded",
+    },
+  );
   await page.evaluate(() => {
     return document.body;
   });
@@ -123,27 +126,27 @@ const headerSiteParse = async (dom, language) => {
       elements.push(elementData);
     }
 
-    if (sectionSettings.translate && language !== "en") {
-      let allText = elements
-        .map((element) => `${element.label},${element.description}`)
-        .join(";");
+    // if (sectionSettings.translate && language !== "en") {
+    //   let allText = elements
+    //     .map((element) => `${element.label},${element.description}`)
+    //     .join(";");
 
-      const text = await translateText(allText, language);
+    //   const text = await translateText(allText, language);
 
-      const items = text.split(";");
+    //   const items = text.split(";");
 
-      for (let i = 0; i < items.length; i++) {
-        const parts = items[i].split(",");
+    //   for (let i = 0; i < items.length; i++) {
+    //     const parts = items[i].split(",");
 
-        if (sectionSettings.labelTranslate) {
-          elements[i].label = parts[0];
-        }
+    //     if (sectionSettings.labelTranslate) {
+    //       elements[i].label = parts[0];
+    //     }
 
-        if (sectionSettings.descriptionTranslate) {
-          elements[i].description = parts[1];
-        }
-      }
-    }
+    //     if (sectionSettings.descriptionTranslate) {
+    //       elements[i].description = parts[1];
+    //     }
+    //   }
+    // }
 
     data.sections.push({
       title: titleText,
